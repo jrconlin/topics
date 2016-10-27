@@ -1,0 +1,8 @@
+* {padding:0;margin:0;}
+html {font-family:Arial, Helvetica, SansSerif; padding:0 2em; color:#333;}
+h2 {padding-bottom:.5em;}
+p {padding-bottom:.5em;}
+div {padding:1em 0;}
+code {display:block; padding: .5em; background-color: #ccc;}
+.hidden {display:none;}
+.err {border: 1px solid red; padding:.5em; color: red;}

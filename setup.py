@@ -10,6 +10,8 @@ def read_from(file):
     reply = []
     with io.open(os.path.join(here, file), encoding='utf8') as f:
         for l in f:
+            if l[:3] == "-r ":
+                reply.extend(read_from(l[3:]))
             l = l.strip()
             if not l:
                 break
@@ -48,10 +50,9 @@ setup(name="topics",
       include_package_data=True,
       zip_safe=False,
       install_requires=read_from('requirements.txt'),
-      tests_require=read_from('test-requirements.txt'),
       entry_points="""
-      [console_secripts]
-      server=push_server.main:main
-      pusher=pusher.main:main
+      [console_scripts]
+      topic_server=push_server.main:main
+      topic_pusher=pusher.main:main
       """,
       )

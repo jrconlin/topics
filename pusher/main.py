@@ -26,7 +26,7 @@ def set_args():
     parser.add_argument('--ttl', help='Message time to live', default=300,
                         type=int)
     parser.add_argument('--msg', help='message body to send', default=None,
-                        type=str)
+                        type=str, required=True)
     return parser
 
 
@@ -38,33 +38,34 @@ def load_subscription(args):
     """Load the subscription information from a well known file.
 
     """
-    store = os.open(args.storage, 'r')
-    return json.loads(os.read(store))
+    return json.loads(open(args.storage, 'r').read())
 
 
-def main(sysargs):
+def main(sysargs=None):
+    if not sysargs:
+        sysargs = sys.argv[1:]
     args = set_args().parse_args(sysargs)
     try:
         sub_info = load_subscription(args)
-    except (IOError, ValueError):
-        error("No valid subscription file found.")
+    except (IOError, ValueError) as x:
+        error("No valid subscription file found.", x)
     try:
         if args.topic:
             # The only thing that separates a subscription update from a
             # topic update, is a header.
             pywebpush.WebPusher(sub_info).send(
                 args.msg,
-                {"topic": args.topic},
-                args.ttl,
+                headers={"topic": args.topic},
+                ttl=args.ttl,
             )
         else:
             pywebpush.WebPusher(sub_info).send(
                 args.msg,
-                args.ttl,
+                ttl=args.ttl,
             )
     except Exception as x:
         error("Could not send message:", x)
 
 
 if __name__ == '__main__':
-    main(sys.argv)
+    main(sys.argv[1:])

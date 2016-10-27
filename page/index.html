@@ -3,51 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <title>Absolute Minimal Topic request demo</title>
+    <link rel="stylesheet" href="style.css" content="text/css" />
 </head>
 <body>
 <h1>Absolute Minimal Topic Demo.</h1>
 <div id="err" class="hidden err"></div>
 <div id="first">
-    <h2>First thing, let's get a subscription...</h2>
-    <p>If you've not already done so, agree to get subscription updates.</p>
+    <h2>There's one button, you know what to do.</h2>
+    <p>If prompted, you'll need to agree to receive notifications for this site. (Don't worry, you can turn them
+    off later if you're tired of sending them to yourself.)</p>
 </div>
-<form>
-    <p><label for="target">Test Machine machine</label><input name="target" value="http://localhost:8100"></p>
-    <p><button id="subscribe">Subscribe</button></p>
-</form>
+<div id="">
+    <p><label for="target">Test Machine machine</label><input name="target" value="http://localhost:8200"></p>
+    <p><button id="sub">Subscribe</button></p>
+</div>
 <div id="success" class="hidden">
-    <p>Good News! You're subscription info has been sent to the server. You can use the <tt>pusher</tt> app
-    to send subscription updates.</p>
+    <h2>Good News! You're subscription info has been sent to the server.</h2>
+    <p>You can use the <tt>topic_pusher</tt> app to send subscription updates.</p>
+    <p>To send a message without a topic:<br>
+    <code>topic_pusher --msg "This is a message, Hi!"</code></p>
+    <p>To send a message with a topic:<br>
+    <code>topic_pusher --msg "This is a message with a topic" --topic "ATopic"</code></p>
+    <p>While you may get many normal messages, you should only get one message per topic. This is more noticeable if
+    you close the browser, send messages, then restart the browser.</p>
 </div>
 </body>
 <script>
     'use strict';
+    /* This page is VERY minimal. If you're interested in knowing exactly what's going on here,
+    try looking at https://github.com/mozilla-services/WebPushDataTestPage
+     */
 
      function notify(title, body) {
          let notif =new Notification(title,
                  {
                      body: body,
                      icon: "icon.png",
+                     //tag: "collapse tag",  // This will collapse all notifications with this tag name
                  });
      }
 
      function show_err(msg, e) {
          let err = document.getElementById("err");
-         let errstr;
-         if (msg == undefined) {
+         if (msg == null) {
              err.classList.add("hidden");
              err.innerHTML = "";
              return;
          }
+         if (e != null) {
+             msg = msg + ":" + e.toString();
+         }
          err.innerHTML = msg;
          err.classList.remove("hidden");
-         console.error(msg);
+         console.error(msg, e);
      }
 
      function register() {
          return navigator.serviceWorker.getRegistration()
-                 .then(function(registration){
-                     if (!registation || !navigator.serviceWorker.controller) {
+                 .then(function(reg){
+                     if (!reg || !navigator.serviceWorker.controller) {
                          return navigator.serviceWorker.register("sw.js")
                                  .then(function () {
                                      console.log("Service worker loaded");
@@ -56,12 +70,13 @@
                                  .catch(function (err) {
                                      if (err.name == "SecurityError" || err.name == "NotSupportedError") {
                                          show_err("Could not start<br>This page requires a secure server " +
-                                                 "(e.g. one that can serve https:// pages or be served from localhost)");
+                                                 "(e.g. one that can serve https:// pages or be served " +
+                                                 "from localhost)");
                                          return
                                      }
                                  });
                      } else {
-
+                         console.debug(reg);
                      }
                  })
                  .catch( function(err) {
@@ -70,38 +85,42 @@
      }
 
      function subscribe() {
-         return navigator.serviceWorker.getRegistration()
-                 .then(function(registration) {
-                     /*function resubscribe(){
-                         return registration.pushManager.subscribe({
-                             userVisibleOnly: false,
-                         })
-                     }*/
-                     return registration.pushManager.getSubscription()
-                             .then(function(subscription_info){
+         navigator.serviceWorker.getRegistration()
+                 .then(function (swr) {
+                     swr.pushManager.subscribe()
+                             .then(function (sub_info) {
+                                 console.debug(sub_info);
                                  document.getElementById("first").classList.add("hidden");
-                                 sendSubscription(subscription_info);
+                                 sendSubscription(sub_info);
                              })
-                             .catch(function (err){
+                             .catch(function (err) {
                                  show_err("Failed to send subscription", err)
                              })
                  })
+                 .catch(function(err){ show_err("Fail to get reg", err)})
      }
 
      function sendSubscription(sub_info) {
-         let uri = document.getElementsByName("target")[0];
+         let uri = document.getElementsByName("target")[0].value;
+         console.debug("Sending info ", sub_info);
+         if (sub_info == null) {
+             console.error("No subscription info!?")
+             return
+         }
          let headers = new Headers();
          headers.append('content-type', 'application/json');
+         let body = JSON.stringify(sub_info.toJSON());
          let req = new Request(uri, {
              method: 'POST',
              mode: 'cors',
-             headers: new Headers('Content-Type', 'application/json'),
-             body: sub_info,
-             cache: 'none'}
+             headers: headers,
+             body: body}
          );
          fetch(req)
                  .then(function(response){
-                     if (response.status < 200) {
+                     if (response.status < 300) {
+                         show_err(null);
+                         console.debug("Success!");
                          document.getElementById("success").classList.remove("hidden");
                      }
                  })
@@ -117,8 +136,8 @@
         }
     });
 
-    document.getElementById("subscribe").addEventListener("click", subscribe);
+    register();
+    document.getElementById("sub").addEventListener("click", function() {subscribe()});
 
-     register();
 </script>
 </html>
