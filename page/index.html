@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Absolute Minimal Topic request demo</title>
+</head>
+<body>
+<h1>Absolute Minimal Topic Demo.</h1>
+<div id="err" class="hidden err"></div>
+<div id="first">
+    <h2>First thing, let's get a subscription...</h2>
+    <p>If you've not already done so, agree to get subscription updates.</p>
+</div>
+<form>
+    <p><label for="target">Test Machine machine</label><input name="target" value="http://localhost:8100"></p>
+    <p><button id="subscribe">Subscribe</button></p>
+</form>
+<div id="success" class="hidden">
+    <p>Good News! You're subscription info has been sent to the server. You can use the <tt>pusher</tt> app
+    to send subscription updates.</p>
+</div>
+</body>
+<script>
+    'use strict';
+
+     function notify(title, body) {
+         let notif =new Notification(title,
+                 {
+                     body: body,
+                     icon: "icon.png",
+                 });
+     }
+
+     function show_err(msg, e) {
+         let err = document.getElementById("err");
+         let errstr;
+         if (msg == undefined) {
+             err.classList.add("hidden");
+             err.innerHTML = "";
+             return;
+         }
+         err.innerHTML = msg;
+         err.classList.remove("hidden");
+         console.error(msg);
+     }
+
+     function register() {
+         return navigator.serviceWorker.getRegistration()
+                 .then(function(registration){
+                     if (!registation || !navigator.serviceWorker.controller) {
+                         return navigator.serviceWorker.register("sw.js")
+                                 .then(function () {
+                                     console.log("Service worker loaded");
+                                     window.location.reload();
+                                 })
+                                 .catch(function (err) {
+                                     if (err.name == "SecurityError" || err.name == "NotSupportedError") {
+                                         show_err("Could not start<br>This page requires a secure server " +
+                                                 "(e.g. one that can serve https:// pages or be served from localhost)");
+                                         return
+                                     }
+                                 });
+                     } else {
+
+                     }
+                 })
+                 .catch( function(err) {
+                    show_err("Registration failed", err)
+                 });
+     }
+
+     function subscribe() {
+         return navigator.serviceWorker.getRegistration()
+                 .then(function(registration) {
+                     /*function resubscribe(){
+                         return registration.pushManager.subscribe({
+                             userVisibleOnly: false,
+                         })
+                     }*/
+                     return registration.pushManager.getSubscription()
+                             .then(function(subscription_info){
+                                 document.getElementById("first").classList.add("hidden");
+                                 sendSubscription(subscription_info);
+                             })
+                             .catch(function (err){
+                                 show_err("Failed to send subscription", err)
+                             })
+                 })
+     }
+
+     function sendSubscription(sub_info) {
+         let uri = document.getElementsByName("target")[0];
+         let headers = new Headers();
+         headers.append('content-type', 'application/json');
+         let req = new Request(uri, {
+             method: 'POST',
+             mode: 'cors',
+             headers: new Headers('Content-Type', 'application/json'),
+             body: sub_info,
+             cache: 'none'}
+         );
+         fetch(req)
+                 .then(function(response){
+                     if (response.status < 200) {
+                         document.getElementById("success").classList.remove("hidden");
+                     }
+                 })
+                 .catch(function(e){
+                     show_err("Could not send subscription data", e);
+                 })
+    }
+
+    navigator.serviceWorker.addEventListener('message', function(event){
+        console.debug('Service worker sent: ', JSON.stringify(event.data));
+        if (event.data.type == 'content'){
+            notify("Got message", event.data.content);
+        }
+    });
+
+    document.getElementById("subscribe").addEventListener("click", subscribe);
+
+     register();
+</script>
+</html>
