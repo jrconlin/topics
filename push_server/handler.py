@@ -5,9 +5,10 @@ import cyclone.web
 from twisted.logger import Logger
 
 
-class MainHandler(cyclone.web.RequestHandler):
+class MainHandler(cyclone.web.StaticFileHandler):
 
-    def initialize(self, args=None):
+    def initialize(self, args=None, **kwargs):
+        super(MainHandler, self).initialize(**kwargs)
         self._settings = args
 
     log = Logger()
@@ -20,19 +21,14 @@ class MainHandler(cyclone.web.RequestHandler):
         self.set_header("Access-Control-Expose-Headers",
                         ",".join(["content-type"]))
 
-    @cyclone.web.asynchronous
-    def options(self):
-        self.prepare()
-        self.finish()
-
-    head = options
+    def options(self, *args, **kwargs):
+        pass
 
     @cyclone.web.asynchronous
-    def post(self):
+    def post(self, *args, **kwargs):
         """Accept and log the push endpoint data
 
         """
-        self.prepare()
         try:
             # make sure it's valid JSON, even if you don't do anything with it.
             body = json.loads(self.request.body)
@@ -49,21 +45,3 @@ class MainHandler(cyclone.web.RequestHandler):
             self.set_status(400)
             self.write(repr(x) + "\n\n")
         self.finish()
-
-    @cyclone.web.asynchronous
-    def get(self):
-        """Super simple, horribly insecure page server.
-
-        """
-        types = {"css": "text/css", "js": "application/json"}
-        path = self.request.uri.split("/")[-1] or 'index.html'
-        self.add_header("content-type",
-                        types.get(path.split('.')[1], "text/html"))
-        try:
-            data = open(os.path.join("page", path)).read()
-            self.write(data)
-        except Exception as x:
-            self.log.error(repr(x))
-            self.set_status(500)
-        self.finish()
-
