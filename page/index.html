@@ -34,15 +34,6 @@
     try looking at https://github.com/mozilla-services/WebPushDataTestPage
      */
 
-     function notify(title, body) {
-         let notif =new Notification(title,
-                 {
-                     body: body,
-                     icon: "icon.png",
-                     //tag: "collapse tag",  // This will collapse all notifications with this tag name
-                 });
-     }
-
      function show_err(msg, e) {
          let err = document.getElementById("err");
          if (msg == null) {
@@ -59,82 +50,57 @@
      }
 
      function register() {
-         return navigator.serviceWorker.getRegistration()
-                 .then(function(reg){
-                     if (!reg || !navigator.serviceWorker.controller) {
-                         return navigator.serviceWorker.register("sw.js")
-                                 .then(function () {
-                                     console.log("Service worker loaded");
-                                     window.location.reload();
-                                 })
-                                 .catch(function (err) {
-                                     if (err.name == "SecurityError" || err.name == "NotSupportedError") {
-                                         show_err("Could not start<br>This page requires a secure server " +
-                                                 "(e.g. one that can serve https:// pages or be served " +
-                                                 "from localhost)");
-                                         return
-                                     }
-                                 });
-                     } else {
-                         console.debug(reg);
-                     }
-                 })
-                 .catch( function(err) {
-                    show_err("Registration failed", err)
-                 });
+         return navigator.serviceWorker.register("sw.js").then(function () {
+             console.log("Service worker loaded");
+         })
+         .catch(function (err) {
+             if (err.name == "SecurityError" || err.name == "NotSupportedError") {
+                 show_err("Could not start<br>This page requires a secure server " +
+                         "(e.g. one that can serve https:// pages or be served " +
+                         "from localhost)");
+                 return
+             }
+         });
      }
 
      function subscribe() {
-         navigator.serviceWorker.getRegistration()
-                 .then(function (swr) {
-                     swr.pushManager.subscribe()
-                             .then(function (sub_info) {
-                                 console.debug(sub_info);
-                                 document.getElementById("first").classList.add("hidden");
-                                 sendSubscription(sub_info);
-                             })
-                             .catch(function (err) {
-                                 show_err("Failed to send subscription", err)
-                             })
-                 })
-                 .catch(function(err){ show_err("Fail to get reg", err)})
+         navigator.serviceWorker.ready.then(function (swr) {
+             return swr.pushManager.subscribe();
+         })
+         .then(function (sub_info) {
+             console.debug(sub_info);
+             document.getElementById("first").classList.add("hidden");
+             return sendSubscription(sub_info);
+         })
+         .catch(function (err) {
+             show_err("Failed to send subscription", err);
+         });
      }
 
      function sendSubscription(sub_info) {
          let uri = document.getElementsByName("target")[0].value;
          console.debug("Sending info ", sub_info);
          if (sub_info == null) {
-             console.error("No subscription info!?")
-             return
+             throw new Error("No subscription info!?");
          }
-         let headers = new Headers();
-         headers.append('content-type', 'application/json');
-         let body = JSON.stringify(sub_info.toJSON());
-         let req = new Request(uri, {
+         return fetch(uri, {
              method: 'POST',
              mode: 'cors',
-             headers: headers,
-             body: body}
-         );
-         fetch(req)
-                 .then(function(response){
-                     if (response.status < 300) {
-                         show_err(null);
-                         console.debug("Success!");
-                         document.getElementById("success").classList.remove("hidden");
-                     }
-                 })
-                 .catch(function(e){
-                     show_err("Could not send subscription data", e);
-                 })
+             headers: {
+                 'content-type': 'application/json',
+             },
+             body: JSON.stringify(sub_info),
+         })
+         .then(function (response) {
+             if (!response.ok) {
+                 throw new Error("Server responded with status: " +
+                     response.status);
+             }
+             show_err(null);
+             console.debug("Success!");
+             document.getElementById("success").classList.remove("hidden");
+         });
     }
-
-    navigator.serviceWorker.addEventListener('message', function(event){
-        console.debug('Service worker sent: ', JSON.stringify(event.data));
-        if (event.data.type == 'content'){
-            notify("Got message", event.data.content);
-        }
-    });
 
     register();
     document.getElementById("sub").addEventListener("click", function() {subscribe()});

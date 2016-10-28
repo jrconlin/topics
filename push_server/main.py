@@ -1,3 +1,4 @@
+import os
 import sys
 
 import configargparse
@@ -6,6 +7,9 @@ from twisted.internet import reactor
 
 from push_server.log import LogObserver
 from push_server.handler import MainHandler
+
+PAGE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
+                         "page")
 
 
 def set_args():
@@ -33,7 +37,8 @@ def main(sysargs=None):
     if not sysargs:
         sysargs = sys.argv[1:]
     args = set_args().parse_args(sysargs)
-    site = cyclone.web.Application([('/.*', MainHandler, dict(args=args))])
+    options = dict(args=args, path=PAGE_PATH, default_filename="index.html")
+    site = cyclone.web.Application([(r'/(.*)', MainHandler, options)])
     LogObserver().start()
     reactor.listenTCP(args.port, site)
     reactor.run()
