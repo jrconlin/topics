@@ -14,12 +14,12 @@
     off later if you're tired of sending them to yourself.)</p>
 </div>
 <div id="">
-    <p><label for="target">Test Machine machine</label><input name="target" value="http://localhost:8200"></p>
+    <p><label for="target">Test Machine machine</label><input id="target" name="target" value="http://localhost:8200"></p>
     <p><button id="sub">Subscribe</button></p>
 </div>
 <div id="success" class="hidden">
     <h2>Good News! You're subscription info has been sent to the server.</h2>
-    <p>You can use the <tt>topic_pusher</tt> app to send subscription updates.</p>
+    <p>You can use the <span class="tt">topic_pusher</span> app to send subscription updates.</p>
     <p>To send a message without a topic:<br>
     <code>topic_pusher --msg "This is a message, Hi!"</code></p>
     <p>To send a message with a topic:<br>
@@ -58,7 +58,6 @@
                  show_err("Could not start<br>This page requires a secure server " +
                          "(e.g. one that can serve https:// pages or be served " +
                          "from localhost)");
-                 return
              }
          });
      }
