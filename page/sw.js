@@ -1,6 +1,6 @@
 /* The service worker is like an extra process or thread that your
  * application can run. It has limited capabilities and permissions.
- * See: https://developer.mozilla.org/en-US/docs/Mozilla/Projects/Social_API/Service_worker_API_reference
+ * See: https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API
  */
 'use strict';
 

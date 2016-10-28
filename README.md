@@ -25,6 +25,8 @@ git clone https://github.com/jrconlin/topics.git
 cd topics
 virtualenv .
 bin/activate
+pip install -r requirements.txt
+python setup.py develop
 bin/topic_server
 ```
 
