@@ -105,5 +105,16 @@
     register();
     document.getElementById("sub").addEventListener("click", function() {subscribe()});
 
+    // If you want the main page to receive push events from the service worker,
+    // you can uncomment the following block
+    /***
+    navigator.serviceWorker.addEventListener('message', function(event){
+       console.debug('Service worker sent: ', event.data);
+       if (event.data.type == 'content'){
+          // do your nifty things here
+       }
+    }
+    ***/
+
 </script>
 </html>

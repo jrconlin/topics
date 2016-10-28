@@ -23,13 +23,28 @@ self.addEventListener('push', function(event)  {
         // Since we sent this in as text, read it out as text.
         let content = event.data.text();
         console.log("Service worker just got:", content);
-        // Send the event to the parent pages.
+        // Right now, we just pop a notification from the service worker.
+        // This allows the notification to display even if the page isn't
+        // active (since the service worker can run in the background
+        // without the parent page. If you wanted, you could also send
+        // the event data back to the parent page for further processing.
         event.waitUntil(
           self.registration.showNotification("Got message", {
             body: content,
             icon: "icon.png",
             //tag: "collapse tag",  // This will collapse all notifications with this tag name
           })
+          /***
+          // Uncomment if you want to send the notification to the main page.
+          self.clients.matchAll()
+            .then(clientList => {
+                clientList.forEach(client => {
+                    sent = true;
+                    client.postMessage({"type": "content", "content": content});
+                })
+            )
+            .catch(err => console.error("Service worker couldn't send message:" , err));
+          ***/
         );
     }
 });
