@@ -51,11 +51,14 @@ def main(sysargs=None):
         error("No valid subscription file found.", x)
     try:
         if args.topic:
+            if ' ' in args.topic or '"' in args.topic or '"' in args.topic:
+                raise Exception("don't use quotes or spaces in your topics")
+            topic = args.topic.strip('"\'')
             # The only thing that separates a subscription update from a
             # topic update, is a header.
             pywebpush.WebPusher(sub_info).send(
                 args.msg,
-                headers={"topic": args.topic},
+                headers={"topic": topic},
                 ttl=args.ttl,
             )
         else:
