@@ -20,14 +20,14 @@ themselves if the user hasn't gotten them yet. Think of messages like "You have
 
 
  To get started:
- ```
-git clone https://github.com/jrconlin/topics.git
-cd topics
-virtualenv .
-bin/activate
-python setup.py develop
-bin/topic_server
-```
+
+    git clone https://github.com/jrconlin/topics.git
+    cd topics
+    virtualenv .
+    source bin/activate
+    python setup.py develop
+    bin/topic_server
+
 
  Now start your browser and go to the topic `page` being served. (Again,
  either this is under a server running on your local machine, or by running
@@ -49,14 +49,43 @@ bin/topic_server
 
   Once it's closed, send a few normal messages, and then send a few
   messages with a topic like
-  ```
-  bin/topic_pusher --msg "I'm message #1" --topic MyTopic
-  bin/topic_pusher --msg "I'm message #2" --topic MyTopic
-  ```
+
+      bin/topic_pusher --msg "I'm message #1" --topic MyTopic
+      bin/topic_pusher --msg "I'm message #2" --topic MyTopic
+
 
   When you re-open your browser, you should see all of the pending messages,
   but you should only see the latest message for `MyTopic`. NOTE: Currently
   the topic name is not sent as part of the data. The `msg` can be any content,
   so it's trivial to turn it into a JSON object that includes the topic name
   if you wanted that info passed along.
+
+## Installation Errors
+
+### Could not find required distribution pyasn1
+
+If you get the following error:
+
+    error: Could not find required distribution pyasn1
+
+Then re-run:
+
+    python setup.py develop
+
+
+### OSX Users - SSL error 
+
+Apple has deprecated OpenSSL in favor of its own TLS and crypto libraries.
+If you get an SSL error on OSX (El Capitan), install OpenSSL with brew, then
+link brew libraries and install cryptography.  
+NOTE: /usr/local/opt/openssl is symlinked to brew Cellar:
+
+
+    brew install openssl
+    ARCHFLAGS="-arch x86_64" LDFLAGS="-L/usr/local/opt/openssl/lib" \
+      CFLAGS="-I/usr/local/opt/openssl/include" pip install cryptography
+
+Then re-run:
+
+    python setup.py develop 
 
