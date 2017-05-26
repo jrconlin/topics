@@ -14,16 +14,19 @@ themselves if the user hasn't gotten them yet. Think of messages like "You have
 
   In addition, you'll need to either serve the `./page` directory from your
   local web server or run `bin/topic_server` with enough privileges to be able
-  to start a web server at port 80. This is because of a restriction enforced
-  by ServiceWorkers. ServiceWorker scripts must either be served from a
-  secure server (one that can run `https://` or from `localhost`)
+  to start a web server at port 80 (default port is: 8200). This is because of
+  a restriction enforced by ServiceWorkers. ServiceWorker scripts must either
+  be served from a secure server (one that can run `https://` or from `localhost`)
 
+### Prerequisites
 
- To get started:
+  Twisted currently requires Python 2.7
+
+### Setup
 
     git clone https://github.com/jrconlin/topics.git
     cd topics
-    virtualenv .
+    virtualenv . 
     source bin/activate
     python setup.py develop
     bin/topic_server
