@@ -1,0 +1,13 @@
+.idea/
+*.pyc
+*.sw[op]
+.DS_Store
+.Python
+bin/
+include/
+lib/
+creds.txt
+venv/
+*egg-info*
+pip-selfcheck.json
+*.sh
