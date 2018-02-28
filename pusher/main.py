@@ -49,6 +49,7 @@ def main(sysargs=None):
         sub_info = load_subscription(args)
     except (IOError, ValueError) as x:
         error("No valid subscription file found.", x)
+        return
     try:
         if args.topic:
             if ' ' in args.topic or '"' in args.topic or '"' in args.topic:
@@ -68,6 +69,7 @@ def main(sysargs=None):
             )
     except Exception as x:
         error("Could not send message:", x)
+        return
 
 
 if __name__ == '__main__':
