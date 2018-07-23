@@ -33,9 +33,10 @@ class MainHandler(cyclone.web.StaticFileHandler):
             # make sure it's valid JSON, even if you don't do anything with it.
             body = json.loads(self.request.body)
             out = os.open(self._settings.storage,
-                          os.O_RDWR|os.O_CREAT,
+                          os.O_RDWR|os.O_CREAT|os.O_TRUNC,
                           0644)
-            self.log.info("Writing body: {}".format(body))
+            # Log generates a false info because it can't format the event
+            print("Writing body: {}".format(body))
             os.write(out, self.request.body)
             os.close(out)
             self.write("Ok")

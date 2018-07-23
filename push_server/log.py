@@ -11,7 +11,11 @@ class LogObserver(log.FileLogObserver):
         self._format = formatEventAsClassicLogText
 
     def __call__(self, event, *args, **kwargs):
-        self._output.write(unicode(self._format(event)))
+        printable = {}
+        output = self._format(event)
+
+        self._output.write(unicode(output))
+
 
     def start(self):
         globalLogPublisher.addObserver(self)

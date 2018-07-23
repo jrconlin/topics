@@ -38,7 +38,9 @@ def load_subscription(args):
     """Load the subscription information from a well known file.
 
     """
-    return json.loads(open(args.storage, 'r').read())
+    print("Opening {}".format(args.storage))
+    data = open(args.storage, 'r').read()
+    return json.loads(data)
 
 
 def main(sysargs=None):
