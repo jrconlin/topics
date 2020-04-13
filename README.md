@@ -1,4 +1,4 @@
-#Minimal WebPush Topic Demo
+# Minimal WebPush Topic Demo
 
 This is a suite of things to help show how sites can use WebPush topics.
 
@@ -14,27 +14,33 @@ themselves if the user hasn't gotten them yet. Think of messages like "You have
 
   In addition, you'll need to either serve the `./page` directory from your
   local web server or run `bin/topic_server` with enough privileges to be able
-  to start a web server at port 80 (default port is: 8200). This is because of
+  to start a web server at port 80 (default port is: *8200*). This is
+  because of
   a restriction enforced by ServiceWorkers. ServiceWorker scripts must either
   be served from a secure server (one that can run `https://` or from `localhost`)
 
 ### Prerequisites
 
-  Twisted currently requires Python 2.7
+  * `build-essential` or equivalent cc, make, etc. meta package
+  * libssl-dev
+  * $PYTHON development libraries (e.g. `pypy-dev`)
 
 ### Setup
 
+    PYTHON=pypy
     git clone https://github.com/jrconlin/topics.git
     cd topics
-    virtualenv . 
-    source bin/activate
+    virtualenv -p $PYTHON venv
+    source venv/bin/activate
     python setup.py develop
-    bin/topic_server
+    venv/bin/topic_server
 
 
- Now start your browser and go to the topic `page` being served. (Again,
- either this is under a server running on your local machine, or by running
- `bin/topic_server -p 80`)
+ Now start your browser and go to the topic `page` being served.
+ (Again,
+ either this is under a server running on your local machine, or by
+ running
+ `bin/topic_server -p 8200`)
 
  The page is fairly self explanatory, but basically, click on the ***Subscribe***
  button, and say "Allow" when prompted.
@@ -76,11 +82,11 @@ Then re-run:
     python setup.py develop
 
 
-### OSX Users - SSL error 
+### OSX Users - SSL error
 
 Apple has deprecated OpenSSL in favor of its own TLS and crypto libraries.
 If you get an SSL error on OSX (El Capitan), install OpenSSL with brew, then
-link brew libraries and install cryptography.  
+link brew libraries and install cryptography.
 NOTE: /usr/local/opt/openssl is symlinked to brew Cellar:
 
 
@@ -90,5 +96,5 @@ NOTE: /usr/local/opt/openssl is symlinked to brew Cellar:
 
 Then re-run:
 
-    python setup.py develop 
+    python setup.py develop
 

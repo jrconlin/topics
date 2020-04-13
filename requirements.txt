@@ -1,5 +1,9 @@
+attrs
+cryptography
+ipaddress
+pyasn1
 pywebpush
 configargparse
 cyclone
-twisted
+twisted==19.2.1
 service_identity

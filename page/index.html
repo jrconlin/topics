@@ -64,15 +64,24 @@
 
      function subscribe() {
          navigator.serviceWorker.ready.then(function (swr) {
-             return swr.pushManager.subscribe();
-         })
-         .then(function (sub_info) {
-             console.debug(sub_info);
-             document.getElementById("first").classList.add("hidden");
-             return sendSubscription(sub_info);
-         })
-         .catch(function (err) {
-             show_err("Failed to send subscription", err);
+             return swr.pushManager.getSubscription()
+                .then(async function (sub_info) {
+                    if (sub_info) {
+                        return sub_info;
+                    }
+                    console.debug("Previous subscription info: ", sub_info);
+                    document.getElementById("first").classList.add("hidden");
+                    return  swr.pushManager.subscribe({
+                        userVisibleOnly: true
+                    })
+                })
+                .then(function(subscription){
+                    console.debug("sending Subscription", subscription);
+                    self.sendSubscription(subscription)
+                })
+                .catch(function (err) {
+                    show_err("Failed to send subscription", err);
+                });
          });
      }
 

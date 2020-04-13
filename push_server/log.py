@@ -14,7 +14,7 @@ class LogObserver(log.FileLogObserver):
         printable = {}
         output = self._format(event)
 
-        self._output.write(unicode(output))
+        self._output.write(output)
 
 
     def start(self):
