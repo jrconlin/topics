@@ -34,7 +34,7 @@ class MainHandler(cyclone.web.StaticFileHandler):
             body = json.loads(self.request.body)
             out = os.open(self._settings.storage,
                           os.O_RDWR|os.O_CREAT|os.O_TRUNC,
-                          0644)
+                          0o0644)
             # Log generates a false info because it can't format the event
             print("Writing body: {}".format(body))
             os.write(out, self.request.body)
