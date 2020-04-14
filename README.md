@@ -23,11 +23,11 @@ themselves if the user hasn't gotten them yet. Think of messages like "You have
 
   * `build-essential` or equivalent cc, make, etc. meta package
   * libssl-dev
-  * $PYTHON development libraries (e.g. `pypy-dev`)
+  * $PYTHON development libraries (e.g. `python3-dev`)
 
 ### Setup
 
-    PYTHON=pypy
+    PYTHON=python3
     git clone https://github.com/jrconlin/topics.git
     cd topics
     virtualenv -p $PYTHON venv
