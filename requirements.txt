@@ -5,5 +5,5 @@ pyasn1
 pywebpush
 configargparse
 cyclone
-twisted==19.2.1
+twisted==22.1.0
 service_identity
